@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>PSK Compass — Prototype</title>
+<style>
+  :root{
+    --bg:#0f1216; --panel:#171c22; --panel2:#1e252d; --line:#2a323c;
+    --ink:#e9edf1; --muted:#9aa7b4; --brand:#3d8bfd; --good:#31c48d; --warn:#f0a33d;
+    --rail:#12181f;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+    background:var(--bg);color:var(--ink)}
+  header{padding:14px 20px;border-bottom:1px solid var(--line);display:flex;
+    align-items:center;gap:14px;flex-wrap:wrap}
+  .logo{font-weight:700;letter-spacing:.3px}
+  .logo b{color:var(--brand)}
+  .tag{font-size:11px;color:var(--muted);border:1px solid var(--line);
+    padding:2px 8px;border-radius:999px}
+  .spacer{flex:1}
+  .toggle{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+  .switch{position:relative;width:46px;height:26px;background:var(--panel2);
+    border:1px solid var(--line);border-radius:999px;cursor:pointer;transition:.2s}
+  .switch.on{background:var(--brand)}
+  .knob{position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;
+    background:#fff;transition:.2s}
+  .switch.on .knob{left:22px}
+  main{display:grid;grid-template-columns:1fr 320px;gap:18px;padding:18px 20px;
+    max-width:1100px;margin:0 auto}
+  @media(max-width:840px){main{grid-template-columns:1fr}}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);
+    margin:0 0 10px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:14px;margin-bottom:14px}
+  .market{display:flex;justify-content:space-between;align-items:center;gap:10px;
+    padding:11px 12px;border:1px solid var(--line);border-radius:10px;margin-bottom:9px;
+    background:var(--panel2);cursor:pointer;transition:.15s}
+  .market:hover{border-color:var(--brand)}
+  .market .why{font-size:11px;color:var(--brand);margin-top:3px;display:none}
+  body.compass .market .why{display:block}
+  .market .m-title{font-weight:600}
+  .market .m-sub{font-size:12px;color:var(--muted)}
+  .odds{background:#101720;border:1px solid var(--line);border-radius:8px;
+    padding:6px 12px;font-weight:700;color:var(--good)}
+  .pill{display:inline-block;font-size:10px;color:var(--muted);border:1px solid var(--line);
+    border-radius:999px;padding:1px 7px;margin-left:6px}
+  .rail{position:sticky;top:14px}
+  .svs{text-align:center;padding:6px 0 12px}
+  .meter{--v:0;width:150px;height:150px;border-radius:50%;margin:6px auto;
+    background:conic-gradient(var(--brand) calc(var(--v)*1%),var(--panel2) 0);
+    display:flex;align-items:center;justify-content:center;position:relative}
+  .meter::before{content:"";position:absolute;inset:14px;background:var(--panel);
+    border-radius:50%}
+  .meter b{position:relative;font-size:30px}
+  .rail-item{border-top:1px solid var(--line);padding:9px 0;font-size:13px}
+  .rail-item .k{color:var(--muted)}
+  .conf{background:var(--rail);border:1px solid var(--line);border-radius:12px;
+    padding:14px;margin-top:14px}
+  .conf h3{margin:0 0 8px;font-size:14px}
+  .conf .row{display:flex;justify-content:space-between;padding:4px 0;font-size:13px;
+    border-bottom:1px dashed var(--line)}
+  .conf .row:last-child{border-bottom:0}
+  .conf .muted{color:var(--muted)}
+  .btn{width:100%;margin-top:12px;padding:11px;border:0;border-radius:10px;
+    background:var(--brand);color:#fff;font-weight:700;cursor:pointer;font-size:14px}
+  .note{font-size:11px;color:var(--muted);margin-top:8px}
+  .off-hint{color:var(--warn);font-size:12px}
+  .foot{max-width:1100px;margin:0 auto;padding:0 20px 26px;color:var(--muted);font-size:12px}
+  code{background:var(--panel2);padding:1px 5px;border-radius:5px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><b>PSK</b> Compass</div>
+  <span class="tag">Prototype • sample data • not affiliated with PSK</span>
+  <div class="spacer"></div>
+  <div class="toggle">
+    <span>Compass</span>
+    <div class="switch" id="sw"><div class="knob"></div></div>
+    <span id="swlabel">off</span>
+  </div>
+</header>
+
+<main>
+  <section>
+    <div class="card">
+      <h2>Session — “Marko”, returning football bettor, halftime</h2>
+      <div id="hint" class="off-hint">Compass off: generic layout, mixed relevance. Try turning Compass on ↗</div>
+      <div id="markets"></div>
+    </div>
+  </section>
+
+  <aside class="rail">
+    <div class="card">
+      <h2>Session Value Score</h2>
+      <div class="svs">
+        <div class="meter" id="meter"><b id="svsval">0</b></div>
+        <div class="note">relevance × informedness × low-friction</div>
+      </div>
+      <div class="rail-item"><span class="k">Relevance</span> <span id="s-rel" style="float:right"></span></div>
+      <div class="rail-item"><span class="k">Informedness</span> <span id="s-inf" style="float:right"></span></div>
+      <div class="rail-item"><span class="k">Friction</span> <span id="s-fri" style="float:right"></span></div>
+    </div>
+
+    <div class="conf" id="conf" hidden>
+      <h3>Confidence Rail</h3>
+      <div class="row"><span>Recent form (last 5)</span><span class="muted">W-W-D-W-L</span></div>
+      <div class="row"><span>Why you're seeing this</span><span class="muted">You follow this league</span></div>
+      <div class="row"><span>Stake</span><span>€10.00</span></div>
+      <div class="row"><span>Potential return</span><span class="muted">€10 × 1.85 = <b>€18.50</b></span></div>
+      <div class="row"><span>Spent this session</span><span class="muted">€10 of your €50 limit</span></div>
+      <button class="btn" onclick="act()">Place bet — confident &amp; informed</button>
+      <div class="note">No countdowns, no urgency. Clarity only. RG limits shown, never hidden.</div>
+    </div>
+  </aside>
+</main>
+
+<div class="foot">
+  Prototype for FEG Hackathon 2026 · Challenge 1. Scoring mirrors the tested engine in
+  <code>src/svs.mjs</code>. Sample data only — no real player data.
+</div>
+
+<script>
+// Sample markets. `rel` = relevance to this user (0..1). Compass sorts by relevance
+// and reveals a plain-language "why"; off-mode shows the generic (unsorted) order.
+const MARKETS = [
+  {t:"Dinamo vs Hajduk — Match winner", s:"Live · 1st half", odds:"1.85", rel:0.95, why:"Live in a league you follow"},
+  {t:"Casino — Book of Fortune slot", s:"Recommended", odds:"—", rel:0.15, why:""},
+  {t:"Rijeka vs Osijek — Over 2.5 goals", s:"Live · 38'", odds:"2.10", rel:0.80, why:"Matches your recent bet types"},
+  {t:"Tennis — ATP Zagreb, Set 1", s:"Prematch", odds:"1.60", rel:0.30, why:""},
+  {t:"Dinamo — Next goal scorer", s:"Live", odds:"3.40", rel:0.72, why:"You bet on this market last week"},
+  {t:"eSports — CS2 major", s:"Live", odds:"1.95", rel:0.20, why:""},
+];
+
+let compass=false, informed=false, acted=false, engaged=0, steps=8;
+
+const sw=document.getElementById('sw');
+sw.onclick=()=>{compass=!compass;informed=false;acted=false;engaged=0;steps=compass?2:8;render();};
+
+function render(){
+  document.body.classList.toggle('compass',compass);
+  sw.classList.toggle('on',compass);
+  document.getElementById('swlabel').textContent=compass?'on':'off';
+  document.getElementById('hint').style.display=compass?'none':'block';
+  document.getElementById('conf').hidden=!compass;
+
+  const list=[...MARKETS];
+  if(compass) list.sort((a,b)=>b.rel-a.rel);
+  const box=document.getElementById('markets');
+  box.innerHTML='';
+  list.forEach(m=>{
+    const el=document.createElement('div');
+    el.className='market';
+    el.innerHTML=`<div><div class="m-title">${m.t}
+      ${compass&&m.rel>=0.7?'<span class="pill">for you</span>':''}</div>
+      <div class="m-sub">${m.s}</div>
+      ${m.why?`<div class="why">↳ ${m.why}</div>`:''}</div>
+      <div class="odds">${m.odds}</div>`;
+    el.onclick=()=>{engaged=Math.min(engaged+1,MARKETS.length);
+      if(compass){informed=true;} score();};
+    box.appendChild(el);
+  });
+  score();
+}
+
+function score(){
+  // mirrors src/svs.mjs computeSVS with default weights
+  const w={relevance:.4,informedness:.3,friction:.3};
+  const relevance = compass ? Math.min(1,0.55+engaged*0.12) : Math.min(0.5,0.12+engaged*0.05);
+  const informedness = informed?1:(acted?0.2:0);
+  const friction = Math.min(1, steps/8);
+  const raw=w.relevance*relevance+w.informedness*informedness+w.relevance*0+w.friction*(1-friction);
+  const svs=Math.max(0,Math.min(1,raw/(w.relevance+w.informedness+w.friction)));
+  const pct=Math.round(svs*100);
+  document.getElementById('meter').style.setProperty('--v',pct);
+  document.getElementById('svsval').textContent=pct;
+  document.getElementById('s-rel').textContent=relevance.toFixed(2);
+  document.getElementById('s-inf').textContent=informedness.toFixed(2);
+  document.getElementById('s-fri').textContent=friction.toFixed(2);
+}
+
+function act(){acted=true;informed=true;engaged=Math.max(engaged,4);steps=2;
+  score();
+  document.querySelector('#conf .btn').textContent='✓ Bet placed — no pressure used';}
+
+render();
+</script>
+</body>
+</html>

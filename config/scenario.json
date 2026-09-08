@@ -1,0 +1,20 @@
+{
+  "$comment": "Tunable inputs for the Session Value Score and the impact model. Replace the baseline_* values with figures from the official hackathon dataset.",
+  "svs_weights": {
+    "relevance": 0.4,
+    "informedness": 0.3,
+    "friction": 0.3
+  },
+  "baseline_assumptions": {
+    "mau": 250000,
+    "sessions_per_user_month": 12,
+    "share_sessions_no_action": 0.62,
+    "final_step_dropoff": 0.18,
+    "avg_value_per_action_eur": 7.5
+  },
+  "modelled_uplift": {
+    "final_step_conversion_relative": 0.12,
+    "actions_per_session_relative": 0.08,
+    "d30_retention_pp": 0.03
+  }
+}

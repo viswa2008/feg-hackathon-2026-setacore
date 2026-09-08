@@ -1,0 +1,29 @@
+{
+  "$comment": "Compliance-by-design guardrails enforced by the session layer. These are hard rules, not suggestions.",
+  "prohibited_mechanics": [
+    "countdown_timers",
+    "artificial_scarcity",
+    "loss_chasing_prompts",
+    "urgency_language",
+    "streak_pressure",
+    "auto_stake_increase"
+  ],
+  "required_before_personalised_surface": [
+    "consent_present",
+    "not_self_excluded",
+    "no_active_rg_flag",
+    "age_verified_18_plus"
+  ],
+  "always_preserve_at_full_fidelity": [
+    "responsible_gambling_interstitials",
+    "reality_checks",
+    "session_limits",
+    "deposit_limits",
+    "age_gates"
+  ],
+  "explainability": {
+    "every_recommendation_has_reason": true,
+    "reason_is_human_readable": true,
+    "user_can_dismiss": true
+  }
+}
